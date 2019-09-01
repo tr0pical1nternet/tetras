@@ -1,7 +1,7 @@
 window.onload = function() {
   // DECLARATIONS
 
-  // Get Elements
+  // Get HTML Elements
   var viewportElement = document.getElementById('viewport');
   var tetrasElement = document.getElementById('scene');
   var scene = Snap('#scene');
@@ -31,15 +31,15 @@ window.onload = function() {
   // FUNCTIONS
 
   // Finds center of a tile from its row and column
-  // Params: row as int, col as int, tile as obj
-  // Returns: array [ x as float, y as float ]
+  // @param row as int, col as int, tile as obj
+  // @return array [ x as float, y as float ]
   function tileOffset( row, col, tile, tilePlaneOffset ) {
     return [ tile.width * col / 2, tile.height * row / 2 ];
   }
 
   // Generates a point map of the starting position of each tile
-  // Params: tile as object, viewport as object
-  // Returns: tilePlane
+  // @param tile as object, viewport as object
+  // @return tilePlane
   function makeTilePlane( tile, viewport ) {
     numCols = Math.ceil( 2 * viewport.width / tile.width );
     numRows = Math.ceil( 2 * viewport.height / tile.height );
@@ -77,8 +77,8 @@ window.onload = function() {
   }
 
   // Splits a six digit hex string into three hex values
-  // Params: hexValue as string
-  // Returns: array of hex integers [ R, G, B ]
+  // @param hexValue as string
+  // @return array of hex integers [ R, G, B ]
   function splitRGB( hexString ) {
     stringArray = hexString.match(/.{2}/g);
     hexArray = stringArray.map( x => parseInt( x, 16) );
@@ -86,8 +86,8 @@ window.onload = function() {
   }
 
   // Assigns tetra color based on viewport y value, with higher contrast in lower rows
-  // Params: y as float
-  // Returns: Array [ colorA as hex string, colorB as hex string ]
+  // @param y as float
+  // @return Array [ colorA as hex string, colorB as hex string ]
   function tetraColor( y, viewport ) {
     var startColor = splitRGB("444444");
     var startContrast = .1;
@@ -113,8 +113,8 @@ window.onload = function() {
   }
 
   // Creates a point a random distance along a line segment
-  // Params: pointA as [ x, y ], pointB as [ x, y ]
-  // Returns: point C as [ x, y ]
+  // @param pointA as [ x, y ], pointB as [ x, y ]
+  // @return point C as [ x, y ]
   function breakLine( pointA, pointB ) {
     // console.log( pointA, pointB );
     // slope = ( pointB[1] - pointA[1] ) / ( pointB[0] - pointA[0] );
@@ -126,8 +126,8 @@ window.onload = function() {
   }
 
   // Sets elevation as a function of y position
-  // Params: y as float
-  // Returns: elevation as float
+  // @param y as float
+  // @return elevation as float
   function elevate( y ) {
     minElev = tile.height * 2;
     maxElev = tile.height * 3;
@@ -138,9 +138,9 @@ window.onload = function() {
   }
 
   // Generates svg object of one terra
-  // Params: tile as object, offset as array [ x, y ], elevation as float,
+  // @param tile as object, offset as array [ x, y ], elevation as float,
   //         tetraColor as Array [ colorA as hexString, colorB as hexString ]
-  // Returns: tetra Snap svg object
+  // @return tetra Snap svg object
   function drawTetra( tile, offset, elevation, tetraColor ) {
     var shift = .2 * tile.width;
     var a = [ offset[0] - tile.width / 2, offset[1] ];
@@ -157,8 +157,8 @@ window.onload = function() {
   }
 
   // Moves a point within a radius determined by shift, a percentage of the tileWidth
-  // Params: point as Array [ x, y ], radius as float
-  // Returns: point as Array [ x, y ]
+  // @param point as Array [ x, y ], radius as float
+  // @return point as Array [ x, y ]
   function pointShift( point, maxRadius ) {
     var rad = Math.random() * maxRadius;
     var th = Math.random() * 2 * pi;
@@ -166,8 +166,8 @@ window.onload = function() {
   }
 
   // Generates an svg path string of the specified arc
-  // Params: circle { center as [ x, y ], radius as float, arc as [ startRadian, endRadian ] }
-  // Returns: svg path string
+  // @param circle { center as [ x, y ], radius as float, arc as [ startRadian, endRadian ] }
+  // @return svg path string
   function arcString( circle ) {
     return Snap.format("A{rx},{ry} {x_axis_rotation} {large_arc_flag} {sweep_flag} {x1},{y1}", {
       rx: circle.radius,
@@ -181,10 +181,12 @@ window.onload = function() {
   }
 
   // Draws a Serlio's ellipse at the tile location
-  // Params: offset [ x, y ], width, color
-  // Returns: SVG object
-  function drawSerlio( offset, width, color, opacity ) {
-    var circle = [];
+  // @param offset    [ x, y ]
+  // @param width     width in pixels
+  // @param cssClass  class to assign SVG element
+  // @return SVG object
+  function drawSerlio( offset, width, cssClass ) {
+    let circle = [];
     circle[0] = {
       center: [ offset[0] - 1 * width / 6, offset[1] ],
       radius: 1/6 * width,
@@ -209,36 +211,12 @@ window.onload = function() {
       arc: [ pi / 3, 2 * pi / 3 ]
     }
 
-    var arc = circle.map( circ => arcString( circ ));
+    let arc = circle.map( circ => arcString( circ ));
 
     x0 = circle[0].center[0] + circle[0].radius * Math.cos( circle[0].arc[0] );
     y0 = circle[0].center[1] + circle[0].radius * Math.sin( circle[0].arc[0] );
-    return scene.path( "M" + x0 + "," + y0 + " " + arc[0] + arc[1] + arc[2] + arc[3] + "z" ).attr({fill: color, opacity: opacity, class: "serlio" });
-
-    // return scene.path(Snap.format("M{x0} {y0}", {
-    //   x0: offset[0] + circle.center[0] + circle.radius * Math.cos( circle.arc[0] ),
-    //   y0: offset[1] + circle.center[1] + circle.radius * Math.sin( circle.arc[0] ),
-    // }) + arc[0] + arc[1] + arc[2] + arc[3]).attr( { fill: color } );
-  }
-
-  // Animates a series of Serlio's Ellipse into a radiating field of color
-  // Params: offset [ x, y ], width as float
-
-  function chromaticRadiation( offset, width ) {
-    // var serlio = []
-    // for ( var i = 0; i < 4; i++ ) {
-      window.serlio0 = drawSerlio( [ offset[0], offset[1] - tile.height ], width / 10, "#6666FF", 0);
-      var startMatrix = new Snap.matrix();
-      startMatrix.translate( 0, 0 );
-      startMatrix.scale(10);
-      var endMatrix = new Snap.matrix;
-      endMatrix.translate( 0, tile.height * 4 );
-      endMatrix.scale(80);
-      startTransform = function() { window.serlio0.animate( { transform: endMatrix, opacity: 0 }, 20000 ); };
-      window.serlio0.animate( { transform: startMatrix, opacity: .2 }, 1000, mina.linear(), startTransform  );
-
-      // return serlio0;
-    // }
+ 
+    return scene.path( "M" + x0 + "," + y0 + " " + arc[0] + arc[1] + arc[2] + arc[3] + "z" ).attr({class: "serlio " + cssClass});
   }
 
   var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
@@ -252,28 +230,30 @@ window.onload = function() {
     }))
   });
 
+  // Function to find place chromatic radiation points
+  // @param   set
+  // @param   bands as int
+  // @return  epicenter as array [x, y]
+  function placeRadiation(set, bands) {
+    let randomTileIndex = parseInt(Math.random() * tilePlane.tile.length, 10);
+    let epicenter = [tilePlane.tile[randomTileIndex].offset[0] - (tile.width / 2), tilePlane.tile[randomTileIndex].offset[1]];
+    for (let i = 0; i < bands; i++) {
+      drawSerlio(epicenter, tile.width, 'epicenter-' + set + ' ' + 'delay-' + i )
+    }
+  }
+  
   var tilePlane = makeTilePlane( tile, viewport );
+  
   var tetra = [];
   for ( var id = tilePlane.tile.length - 1; id >= 0; id = id - 1 ) {
     tetra[id] = drawTetra( tile, tilePlane.tile[id].offset, 100, tetraColor( tilePlane.tile[id].offset[1], viewport ) );
   }
 
-  // chromaticRadiation( [ 0, 0 ], tile.width );
+  const radiationBands = 5
+  placeRadiation(0, radiationBands);
 
-  var serlio0 = drawSerlio( [0,0], tile.width, "#6666FF", 1);
+  // var serlio0 = drawSerlio( [0,0], tile.width, 'delay-0');
 
-  // var serlio0 = drawSerlio( [ 0, -200 + 1 * tile.height ], tile.width * 2, "#66F", .2);
-  // var serlio1 = serlio0;
-  // var serlio2 = drawSerlio( [ 0, -200 + 2 * tile.height ], tile.width * 4, "#88F", .175);
-  // var serlio3 = drawSerlio( [ 0, -200 + 3 * tile.height ], tile.width * 6, "#AAF", .15);
-
-  // serlioMatrix = new Snap.matrix();
-  // serlioMatrix.translate( 0, 4 * tile.height );
-  // serlioMatrix.scale(4);
-
-  // serlio1.animate({ transform: serlioMatrix, opacity: 0 }, 10000 );
-
-  // var tetra0 = tetraMap.polygon([10, 10], [100, 100], [10, 50]).attr({ fill: "black" });
   console.log( "viewport: ", viewport);
   console.log( "tilePlane: ", tilePlane);
   console.log( "tetra: ", tetra );
