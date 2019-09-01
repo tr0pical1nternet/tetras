@@ -1,0 +1,45 @@
+html {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  -webkit-box-sizing: inherit;
+  -moz-box-sizing: inherit;
+  box-sizing: inherit;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 0;
+  /* width: 100%; */
+  /* height: 100vh; */
+}
+
+#viewport {
+  width: 100%;
+  height: 100vh;
+  transform: scaleY(-1);
+}
+
+#tetras {
+  width: 100%;
+  height: 100%;
+}
+
+.serlio {
+  animation: 10s pulse infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0%);
+    opacity: .5;
+  }
+
+  100% {
+    transform: translateY(100vh) scale(25);
+    opacity: 0;
+  }
+}
