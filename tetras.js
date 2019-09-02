@@ -238,16 +238,17 @@ window.onload = function() {
   // @param   bands as int
   // @return  radiationField as array of snap objects
   function placeRadiation(set, bands, color) {
-    // let randomTileIndex = parseInt(Math.random() * tilePlane.tile.length, 10);
-    // let epicenter = [tilePlane.tile[randomTileIndex].offset[0], tilePlane.tile[randomTileIndex].offset[1]];
-    
-    let epicenter = [-200, -151];
+    let randomTileIndex = parseInt(Math.random() * tilePlane.tile.length, 10);
+    let epicenter = [tilePlane.tile[randomTileIndex].offset[0], tilePlane.tile[randomTileIndex].offset[1]];
+
+    // let epicenter = [-200, -151];
     // console.log('randomTileIndex: ', randomTileIndex);
     console.log('radiationField epicenter: ', epicenter);
     let radiationField = new Array(bands);
 
     for (let i = 0; i < radiationBands; i++) {
-      radiationField[i] = drawSerlio(epicenter, tile.width, color, 'epicenter-' + set + ' ' + 'delay-' + i )
+      radiationField[i] = drawSerlio(epicenter, tile.width, color, 'epicenter-' + set + ' ' + 'delay-' + i );
+      tetra[randomTileIndex].prepend(radiationField[i]);
     }
 
     return radiationField
@@ -261,25 +262,37 @@ window.onload = function() {
     tetra[id] = drawTetra( tile, tilePlane.tile[id].offset, 100, tetraColor( tilePlane.tile[id].offset[1], viewport ) );
   }
 
-  const radiationBands = 1;
+  const radiationBands = 5;
   const radiationColor = '#2d2fb5';
   var radiationField0 = placeRadiation(0, radiationBands, radiationColor);
   
-  radiationField0[0].transform("s0").attr({opacity: .5});
-
-  function radiationPulse() {
-    radiationField0[0].stop().animate({
-        transform: "t0 500 s10",
-        opacity: 0
-      },
-      10000, mina.easeout(),
-      function() {
-        radiationField0[0].transform("t0 0 s0").attr({opacity: .5});
-        radiationPulse();
-    });
+  function radiationPulse(band, delay) {
+    if (!delay) {delay = 0};
+      setTimeout(function() {
+        radiationField0[band].stop().animate({
+          transform: "t0 500 s10",
+          opacity: 0,
+          fill: "#6ba2ea"
+        },
+        10000, mina.easeout(),
+        function() {
+          radiationField0[band].transform("t0 0 s0").attr({
+            opacity: .5,
+            fill: radiationColor
+          });
+          radiationPulse(band, 0);
+      });
+    }, delay)
   }
 
-  radiationPulse();
+
+  for (let i = 0; i < radiationBands; i++) {
+    radiationField0[i].transform("s0").attr({opacity: .5});
+    radiationPulse(i, i * 2000);
+  }
+  
+  // radiationPulse(0, 1000);
+  
   // radiationField1 = radiationField0[0].transform("s0.5");
   // placeRadiation(0, radiationBands);
 
@@ -290,5 +303,4 @@ window.onload = function() {
   console.log( "tetra: ", tetra );
   console.log( "splitRGB: ", splitRGB("FFFFFF") );
   console.log( "tetraColor: ", tetraColor( 0, viewport ) );
-  console.log( "radiationFieldArray: ", radiationFieldArray);
 };
