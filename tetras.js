@@ -264,32 +264,40 @@ window.onload = function() {
 
   const radiationBands = 5;
   const radiationColor = '#2d2fb5';
-  var radiationField0 = placeRadiation(0, radiationBands, radiationColor);
+  const radiationFields = 3;
+  let radiationField = new Array(radiationFields);
+  // var radiationField0 = placeRadiation(0, radiationBands, radiationColor);
   
-  function radiationPulse(band, delay) {
+  function radiationPulse(field, band, scale, delay) {
     if (!delay) {delay = 0};
       setTimeout(function() {
-        radiationField0[band].stop().animate({
-          transform: "t0 500 s10",
+        radiationField[field][band].stop().animate({
+          transform: "t0 500 s" + scale,
           opacity: 0,
           fill: "#6ba2ea"
         },
         10000, mina.easeout(),
         function() {
-          radiationField0[band].transform("t0 0 s0").attr({
-            opacity: .5,
+          radiationField[field][band].transform("t0 0 s0").attr({
+            opacity: .4,
             fill: radiationColor
           });
-          radiationPulse(band, 0);
+          radiationPulse(field, band, scale, 0);
       });
     }, delay)
   }
 
-
-  for (let i = 0; i < radiationBands; i++) {
-    radiationField0[i].transform("s0").attr({opacity: .5});
-    radiationPulse(i, i * 2000);
+  for (let j = 0; j < radiationFields; j++) {
+    let scale = parseInt(Math.random() * 3 + 1) * 2 + 4;
+    radiationField[j] = placeRadiation(0, radiationBands, radiationColor);
+    
+    for (let i = 0; i < radiationBands; i++) {
+      radiationField[j][i].transform("s0").attr({opacity: .5});
+      radiationPulse(j, i, scale, i * 2000);
+    }
   }
+
+  
   
   // radiationPulse(0, 1000);
   
