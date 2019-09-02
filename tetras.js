@@ -216,7 +216,9 @@ window.onload = function() {
     x0 = circle[0].center[0] + circle[0].radius * Math.cos( circle[0].arc[0] );
     y0 = circle[0].center[1] + circle[0].radius * Math.sin( circle[0].arc[0] );
  
-    return scene.path( "M" + x0 + "," + y0 + " " + arc[0] + arc[1] + arc[2] + arc[3] + "z" ).attr({class: "serlio " + cssClass});
+    return scene.path( "M" + x0 + "," + y0 + " " + arc[0] + arc[1] + arc[2] + arc[3] + "z" ).attr({
+      fill: radiationColor,
+      class: "serlio " + cssClass});
   }
 
   var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
@@ -237,9 +239,13 @@ window.onload = function() {
   function placeRadiation(set, bands) {
     let randomTileIndex = parseInt(Math.random() * tilePlane.tile.length, 10);
     let epicenter = [tilePlane.tile[randomTileIndex].offset[0] - (tile.width / 2), tilePlane.tile[randomTileIndex].offset[1]];
+    let bandArray = new Array(bands)
+
     for (let i = 0; i < bands; i++) {
-      drawSerlio(epicenter, tile.width, 'epicenter-' + set + ' ' + 'delay-' + i )
+      bandArray[i] = drawSerlio(epicenter, tile.width, 'epicenter-' + set + ' ' + 'delay-' + i )
     }
+
+    return bandArray;
   }
   
   var tilePlane = makeTilePlane( tile, viewport );
@@ -249,14 +255,20 @@ window.onload = function() {
     tetra[id] = drawTetra( tile, tilePlane.tile[id].offset, 100, tetraColor( tilePlane.tile[id].offset[1], viewport ) );
   }
 
-  const radiationBands = 5
-  placeRadiation(0, radiationBands);
+  // const radiationBands = 5;
+  const radiationColor = '#122499';
+  // let radiationFieldArray = [];
+  // radiationFieldArray[0] = placeRadiation(0, radiationBands);
+  // for (let i = 0; i < radiationBands; i++) {
+  //   radiationFieldArray[0][i].transform('scale(0.01, 0.01)');
+  // }
 
-  // var serlio0 = drawSerlio( [0,0], tile.width, 'delay-0');
+  var serlio0 = drawSerlio( [0,0], tile.width, 'delay-0');
 
   console.log( "viewport: ", viewport);
   console.log( "tilePlane: ", tilePlane);
   console.log( "tetra: ", tetra );
   console.log( "splitRGB: ", splitRGB("FFFFFF") );
   console.log( "tetraColor: ", tetraColor( 0, viewport ) );
+  console.log( "radiationFieldArray: ", radiationFieldArray);
 };
