@@ -1,12 +1,22 @@
 window.onload = function() {
+  // CONSTANTS
+  const radiationBands = 5;
+  const radiationColor = '#2d2fb5';
+  const radiationFields = 3;
+  var tileSize = 15;
+  const tile = {
+    width: tileSize,
+    height: tileSize / Math.sqrt(3)
+  }
+
+  
   // DECLARATIONS
 
   // Get HTML Elements
   var viewportElement = document.getElementById('viewport');
-  var tetrasElement = document.getElementById('scene');
+  var sceneElement = document.getElementById('scene');
   var scene = Snap('#scene');
   const pi = Math.PI;
-  var sqrt = [ 0, 1, Math.sqrt(2), Math.sqrt(3), 2, Math.sqrt(5) ];
 
   // Get body dimensions and assign corresponding viewBox
   var viewport = {
@@ -16,17 +26,9 @@ window.onload = function() {
     height: viewportElement.offsetHeight
   }
 
-  var tileSize = 200;
-  var tile = {
-    width: tileSize,
-    height: tileSize / Math.sqrt(3)
-  }
-
-  console.log( "tile: ", tile );
-
-  tetrasElement.setAttribute("viewBox", viewport.x + " " + viewport.y + " " + viewport.width + " " + viewport.height );
-  tetrasElement.setAttribute("width", viewport.width);
-  tetrasElement.setAttribute("height", viewport.height);
+  sceneElement.setAttribute("viewBox", viewport.x + " " + viewport.y + " " + viewport.width + " " + viewport.height );
+  sceneElement.setAttribute("width", viewport.width);
+  sceneElement.setAttribute("height", viewport.height);
 
   // FUNCTIONS
 
@@ -39,7 +41,7 @@ window.onload = function() {
 
   // Generates a point map of the starting position of each tile
   // @param tile as object, viewport as object
-  // @return tilePlane
+  // @return tilePlane object
   function makeTilePlane( tile, viewport ) {
     numCols = Math.ceil( 2 * viewport.width / tile.width );
     numRows = Math.ceil( 2 * viewport.height / tile.height );
@@ -137,7 +139,7 @@ window.onload = function() {
     return minElev * deltaY;
   }
 
-  // Generates svg object of one terra
+  // Generates svg object of one tetra
   // @param tile as object, offset as array [ x, y ], elevation as float,
   //         tetraColor as Array [ colorA as hexString, colorB as hexString ]
   // @return tetra Snap svg object
@@ -194,7 +196,7 @@ window.onload = function() {
     }
 
     circle[1] = {
-      center: [ offset[0], offset[1] + width / ( 2 * sqrt[3]) ],
+      center: [ offset[0], offset[1] + width / ( 2 * Math.sqrt(3)) ],
       radius: 1/2 * width,
       arc: [ 4 * pi / 3, 5 * pi / 3 ]
     }
@@ -206,7 +208,7 @@ window.onload = function() {
     }
 
     circle[3] = {
-      center: [ offset[0], offset[1] - width / (2 * sqrt[3]) ],
+      center: [ offset[0], offset[1] - width / (2 * Math.sqrt(3)) ],
       radius: 1/2 * width,
       arc: [ pi / 3, 2 * pi / 3 ]
     }
@@ -222,16 +224,16 @@ window.onload = function() {
     });
   }
 
-  var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
-    fill: scene.gradient( Snap.format( "l({x0}, {y0}, {x1}, {y1}){colorA}-{colorB}", {
-      x0: 0,
-      y0: 0,
-      x1: 0,
-      y1: 1,
-      colorA: tetraColor( viewport.y, viewport )[0],
-      colorB: tetraColor( viewport.y + viewport.height, viewport )[0]
-    }))
-  });
+  // var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
+  //   fill: scene.gradient( Snap.format( "l({x0}, {y0}, {x1}, {y1}){colorA}-{colorB}", {
+  //     x0: 0,
+  //     y0: 0,
+  //     x1: 0,
+  //     y1: 1,
+  //     colorA: tetraColor( viewport.y, viewport )[0],
+  //     colorB: tetraColor( viewport.y + viewport.height, viewport )[0]
+  //   }))
+  // });
 
   // Function to place chromatic radiation fields
   // @param   set
@@ -253,26 +255,17 @@ window.onload = function() {
 
     return radiationField
   }
-  
-  // START TO DRAW!
-  var tilePlane = makeTilePlane( tile, viewport );
-  
-  var tetra = [];
-  for ( var id = tilePlane.tile.length - 1; id >= 0; id = id - 1 ) {
-    tetra[id] = drawTetra( tile, tilePlane.tile[id].offset, 100, tetraColor( tilePlane.tile[id].offset[1], viewport ) );
-  }
 
-  const radiationBands = 5;
-  const radiationColor = '#2d2fb5';
-  const radiationFields = 3;
-  let radiationField = new Array(radiationFields);
-  // var radiationField0 = placeRadiation(0, radiationBands, radiationColor);
-  
+  // Animate radiation pulse
+  // @param field   the id of the radiation field to animate
+  // @param band    the id of the specific band of the radiation field
+  // @param scale   the max size of the radiation field in multiples of one tile width
+  // @param delay   the delay in seconds between radiation bands
   function radiationPulse(field, band, scale, delay) {
     if (!delay) {delay = 0};
       setTimeout(function() {
         radiationField[field][band].stop().animate({
-          transform: "t0 500 s" + scale,
+          transform: "t0 " + 4.3301 * tile.height + " s" + scale,
           opacity: 0,
           fill: "#6ba2ea"
         },
@@ -286,6 +279,19 @@ window.onload = function() {
       });
     }, delay)
   }
+  
+  // START TO DRAW!
+  // Create a tile plane to position tetras
+  var tilePlane = makeTilePlane( tile, viewport );
+  
+  // Place tetras on tile plane
+  let tetra = [];
+  for ( var id = tilePlane.tile.length - 1; id >= 0; id = id - 1 ) {
+    tetra[id] = drawTetra( tile, tilePlane.tile[id].offset, 100, tetraColor( tilePlane.tile[id].offset[1], viewport ) );
+  }
+  
+  // Generate radiation fields
+  let radiationField = new Array(radiationFields);
 
   for (let j = 0; j < radiationFields; j++) {
     let scale = parseInt(Math.random() * 3 + 1) * 2 + 4;
@@ -296,19 +302,4 @@ window.onload = function() {
       radiationPulse(j, i, scale, i * 2000);
     }
   }
-
-  
-  
-  // radiationPulse(0, 1000);
-  
-  // radiationField1 = radiationField0[0].transform("s0.5");
-  // placeRadiation(0, radiationBands);
-
-  // var serlio0 = drawSerlio( [300,0], tile.width, 'delay-0');
-
-  console.log( "viewport: ", viewport);
-  console.log( "tilePlane: ", tilePlane);
-  console.log( "tetra: ", tetra );
-  console.log( "splitRGB: ", splitRGB("FFFFFF") );
-  console.log( "tetraColor: ", tetraColor( 0, viewport ) );
 };
