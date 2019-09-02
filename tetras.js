@@ -217,14 +217,9 @@ window.onload = function() {
     y0 = circle[0].center[1] + circle[0].radius * Math.sin( circle[0].arc[0] );
  
     return scene.path( "M" + x0 + "," + y0 + " " + arc[0] + arc[1] + arc[2] + arc[3] + "z" ).attr({
-<<<<<<< HEAD
-      fill: radiationColor,
-      class: "serlio " + cssClass});
-=======
       class: "serlio " + cssClass,
       fill: color
     });
->>>>>>> snapanimate
   }
 
   var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
@@ -266,17 +261,6 @@ window.onload = function() {
     tetra[id] = drawTetra( tile, tilePlane.tile[id].offset, 100, tetraColor( tilePlane.tile[id].offset[1], viewport ) );
   }
 
-<<<<<<< HEAD
-  // const radiationBands = 5;
-  const radiationColor = '#122499';
-  // let radiationFieldArray = [];
-  // radiationFieldArray[0] = placeRadiation(0, radiationBands);
-  // for (let i = 0; i < radiationBands; i++) {
-  //   radiationFieldArray[0][i].transform('scale(0.01, 0.01)');
-  // }
-
-  var serlio0 = drawSerlio( [0,0], tile.width, 'delay-0');
-=======
   const radiationBands = 1;
   const radiationColor = '#2d2fb5';
   var radiationField0 = placeRadiation(0, radiationBands, radiationColor);
@@ -300,7 +284,6 @@ window.onload = function() {
   // placeRadiation(0, radiationBands);
 
   // var serlio0 = drawSerlio( [300,0], tile.width, 'delay-0');
->>>>>>> snapanimate
 
   console.log( "viewport: ", viewport);
   console.log( "tilePlane: ", tilePlane);
