@@ -33,7 +33,7 @@ window.onload = function() {
   // Finds center of a tile from its row and column
   // @param row as int, col as int, tile as obj
   // @return array [ x as float, y as float ]
-  function tileOffset( row, col, tile, tilePlaneOffset ) {
+  function tileOffset( row, col, tile) {
     return [ tile.width * col / 2, tile.height * row / 2 ];
   }
 
@@ -56,12 +56,12 @@ window.onload = function() {
     }
 
     var id = 0;
-    for ( var row = -parseInt( numRows / 2, 10 ); row < numRows; row++ ) {
-      for ( var col = -parseInt( numCols / 2, 10) + row % 2; col < numCols; col = col + 2 ) {
+    for ( var row = -parseInt( numRows / 2, 10 ); row < parseInt(numRows / 2, 10); row++ ) {
+      for ( var col = -parseInt( numCols / 2, 10) + row % 2; col < parseInt( numCols / 2, 10) + 1; col = col + 2 ) {
         tilePlane.tile[id] = {
           row: row,
           col: col,
-          offset: tileOffset( row, col, tile, tilePlane.offset )
+          offset: tileOffset( row, col, tile)
         }
         id = id + 1;
       }
@@ -185,7 +185,7 @@ window.onload = function() {
   // @param width     width in pixels
   // @param cssClass  class to assign SVG element
   // @return SVG object
-  function drawSerlio( offset, width, cssClass ) {
+  function drawSerlio( offset, width, color, cssClass ) {
     let circle = [];
     circle[0] = {
       center: [ offset[0] - 1 * width / 6, offset[1] ],
@@ -217,8 +217,14 @@ window.onload = function() {
     y0 = circle[0].center[1] + circle[0].radius * Math.sin( circle[0].arc[0] );
  
     return scene.path( "M" + x0 + "," + y0 + " " + arc[0] + arc[1] + arc[2] + arc[3] + "z" ).attr({
+<<<<<<< HEAD
       fill: radiationColor,
       class: "serlio " + cssClass});
+=======
+      class: "serlio " + cssClass,
+      fill: color
+    });
+>>>>>>> snapanimate
   }
 
   var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
@@ -232,22 +238,27 @@ window.onload = function() {
     }))
   });
 
-  // Function to find place chromatic radiation points
+  // Function to place chromatic radiation fields
   // @param   set
   // @param   bands as int
-  // @return  epicenter as array [x, y]
-  function placeRadiation(set, bands) {
-    let randomTileIndex = parseInt(Math.random() * tilePlane.tile.length, 10);
-    let epicenter = [tilePlane.tile[randomTileIndex].offset[0] - (tile.width / 2), tilePlane.tile[randomTileIndex].offset[1]];
-    let bandArray = new Array(bands)
+  // @return  radiationField as array of snap objects
+  function placeRadiation(set, bands, color) {
+    // let randomTileIndex = parseInt(Math.random() * tilePlane.tile.length, 10);
+    // let epicenter = [tilePlane.tile[randomTileIndex].offset[0], tilePlane.tile[randomTileIndex].offset[1]];
+    
+    let epicenter = [-200, -151];
+    // console.log('randomTileIndex: ', randomTileIndex);
+    console.log('radiationField epicenter: ', epicenter);
+    let radiationField = new Array(bands);
 
-    for (let i = 0; i < bands; i++) {
-      bandArray[i] = drawSerlio(epicenter, tile.width, 'epicenter-' + set + ' ' + 'delay-' + i )
+    for (let i = 0; i < radiationBands; i++) {
+      radiationField[i] = drawSerlio(epicenter, tile.width, color, 'epicenter-' + set + ' ' + 'delay-' + i )
     }
 
-    return bandArray;
+    return radiationField
   }
   
+  // START TO DRAW!
   var tilePlane = makeTilePlane( tile, viewport );
   
   var tetra = [];
@@ -255,6 +266,7 @@ window.onload = function() {
     tetra[id] = drawTetra( tile, tilePlane.tile[id].offset, 100, tetraColor( tilePlane.tile[id].offset[1], viewport ) );
   }
 
+<<<<<<< HEAD
   // const radiationBands = 5;
   const radiationColor = '#122499';
   // let radiationFieldArray = [];
@@ -264,6 +276,31 @@ window.onload = function() {
   // }
 
   var serlio0 = drawSerlio( [0,0], tile.width, 'delay-0');
+=======
+  const radiationBands = 1;
+  const radiationColor = '#2d2fb5';
+  var radiationField0 = placeRadiation(0, radiationBands, radiationColor);
+  
+  radiationField0[0].transform("s0").attr({opacity: .5});
+
+  function radiationPulse() {
+    radiationField0[0].stop().animate({
+        transform: "t0 500 s10",
+        opacity: 0
+      },
+      10000, mina.easeout(),
+      function() {
+        radiationField0[0].transform("t0 0 s0").attr({opacity: .5});
+        radiationPulse();
+    });
+  }
+
+  radiationPulse();
+  // radiationField1 = radiationField0[0].transform("s0.5");
+  // placeRadiation(0, radiationBands);
+
+  // var serlio0 = drawSerlio( [300,0], tile.width, 'delay-0');
+>>>>>>> snapanimate
 
   console.log( "viewport: ", viewport);
   console.log( "tilePlane: ", tilePlane);
