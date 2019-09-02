@@ -9,7 +9,6 @@ window.onload = function() {
     height: tileSize / Math.sqrt(3)
   }
 
-  
   // DECLARATIONS
 
   // Get HTML Elements
