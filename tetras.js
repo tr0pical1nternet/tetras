@@ -1,24 +1,23 @@
 window.onload = function() {
   // CONSTANTS
+  const tileSize = 15;
+  const radiationFields = 3;
   const radiationBands = 5;
   const radiationColor = '#2d2fb5';
-  const radiationFields = 3;
-  var tileSize = 15;
+  const pi = Math.PI;
+
   const tile = {
     width: tileSize,
     height: tileSize / Math.sqrt(3)
   }
 
-  // DECLARATIONS
-
   // Get HTML Elements
-  var viewportElement = document.getElementById('viewport');
-  var sceneElement = document.getElementById('scene');
-  var scene = Snap('#scene');
-  const pi = Math.PI;
+  const viewportElement = document.getElementById('viewport');
+  const sceneElement = document.getElementById('scene');
+  const scene = Snap('#scene');
 
-  // Get body dimensions and assign corresponding viewBox
-  var viewport = {
+  // Get viewport dimensions and assign corresponding viewBox
+  const viewport = {
     x: -viewportElement.offsetWidth / 2,
     y: -viewportElement.offsetHeight / 2,
     width: viewportElement.offsetWidth,
@@ -46,7 +45,7 @@ window.onload = function() {
     numRows = Math.ceil( 2 * viewport.height / tile.height );
     planeWidth = Math.ceil( numCols / 2) * tile.width;
     planeHeight = Math.ceil( numRows / 2) * tile.height;
-    var tilePlane = {
+    let tilePlane = {
       rows: numRows,
       cols: numCols,
       width: planeWidth,
@@ -56,9 +55,9 @@ window.onload = function() {
       tile: []
     }
 
-    var id = 0;
-    for ( var row = -parseInt( numRows / 2, 10 ); row < parseInt(numRows / 2, 10); row++ ) {
-      for ( var col = -parseInt( numCols / 2, 10) + row % 2; col < parseInt( numCols / 2, 10) + 1; col = col + 2 ) {
+    let id = 0;
+    for ( let row = -parseInt( numRows / 2, 10 ); row < parseInt(numRows / 2, 10); row++ ) {
+      for ( let col = -parseInt( numCols / 2, 10) + row % 2; col < parseInt( numCols / 2, 10) + 1; col = col + 2 ) {
         tilePlane.tile[id] = {
           row: row,
           col: col,
@@ -69,12 +68,6 @@ window.onload = function() {
     }
 
     return tilePlane;
-  }
-
-  function addHexColor(c1, c2) {
-    var hexStr = (parseInt(c1, 16) + parseInt(c2, 16)).toString(16);
-    while (hexStr.length < 6) { hexStr = '0' + hexStr; } // Zero pad.
-    return hexStr;
   }
 
   // Splits a six digit hex string into three hex values
@@ -223,6 +216,7 @@ window.onload = function() {
     });
   }
 
+  // Generates a gradient rectangle underneath the tetras in case there are gaps
   // var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
   //   fill: scene.gradient( Snap.format( "l({x0}, {y0}, {x1}, {y1}){colorA}-{colorB}", {
   //     x0: 0,
@@ -255,7 +249,7 @@ window.onload = function() {
     return radiationField
   }
 
-  // Animate radiation pulse
+  // Animate radiation pulse, calls itself after animation to create infinite loop
   // @param field   the id of the radiation field to animate
   // @param band    the id of the specific band of the radiation field
   // @param scale   the max size of the radiation field in multiples of one tile width
@@ -292,13 +286,21 @@ window.onload = function() {
   // Generate radiation fields
   let radiationField = new Array(radiationFields);
 
-  for (let j = 0; j < radiationFields; j++) {
+  // Loop through each radiation field
+  for (let field = 0; field < radiationFields; field++) {
+    // Set variable scale
     let scale = parseInt(Math.random() * 3 + 1) * 2 + 4;
-    radiationField[j] = placeRadiation(0, radiationBands, radiationColor);
+
+    // Generate radiation field at random location on map
+    radiationField[field] = placeRadiation(field, radiationBands, radiationColor);
     
-    for (let i = 0; i < radiationBands; i++) {
-      radiationField[j][i].transform("s0").attr({opacity: .5});
-      radiationPulse(j, i, scale, i * 2000);
+    // Loop through each band in the radiation field
+    for (let band = 0; band < radiationBands; band++) {
+      // Scale each band to 0 for start position so they can appear when animated
+      radiationField[field][band].transform("s0").attr({opacity: .5});
+
+      // Animate all the radiation with 2s delay between bands
+      radiationPulse(field, band, scale, band * 2000);
     }
   }
 };
