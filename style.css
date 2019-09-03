@@ -19,10 +19,10 @@ body {
 }
 
 #viewport {
-  /* width: 100%;
-  height: 100vh; */
-  width: 85px;
-  height: 35px;
+  width: 100%;
+  height: 100vh;
+  /* width: 85px;
+  height: 35px; */
   margin: auto;
   transform: scaleY(-1);
 }
@@ -30,42 +30,3 @@ body {
 #scene {
   overflow:visible;
 }
-
-/* .serlio {
-  fill: #122499;
-  transform: scale(1);
-  opacity: 1;
-  animation: 10s pulse infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.delay-1 {
-  animation-delay: 1s;
-}
-
-.delay-2 {
-  animation-delay: 2s;
-}
-
-.delay-3 {
-  animation-delay: 3s;
-}
-
-.delay-4 {
-  animation-delay: 4s;
-}
-
-.delay-5 {
-  animation-delay: 5s;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(5);
-    opacity: 0;
-  }
-} */

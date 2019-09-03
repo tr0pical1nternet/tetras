@@ -1,6 +1,6 @@
 window.onload = function() {
   // CONSTANTS
-  const tileSize = 15;
+  const tileSize = 175;
   const radiationFields = 3;
   const radiationBands = 5;
   const radiationColor = '#2d2fb5';
@@ -177,6 +177,7 @@ window.onload = function() {
   // Draws a Serlio's ellipse at the tile location
   // @param offset    [ x, y ]
   // @param width     width in pixels
+  // @param color     color as hex string like "#FFFFFF"
   // @param cssClass  class to assign SVG element
   // @return SVG object
   function drawSerlio( offset, width, color, cssClass ) {
@@ -217,16 +218,16 @@ window.onload = function() {
   }
 
   // Generates a gradient rectangle underneath the tetras in case there are gaps
-  // var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
-  //   fill: scene.gradient( Snap.format( "l({x0}, {y0}, {x1}, {y1}){colorA}-{colorB}", {
-  //     x0: 0,
-  //     y0: 0,
-  //     x1: 0,
-  //     y1: 1,
-  //     colorA: tetraColor( viewport.y, viewport )[0],
-  //     colorB: tetraColor( viewport.y + viewport.height, viewport )[0]
-  //   }))
-  // });
+  var background = scene.rect( viewport.x, viewport.y, viewport.width, viewport.height ).attr({
+    fill: scene.gradient( Snap.format( "l({x0}, {y0}, {x1}, {y1}){colorA}-{colorB}", {
+      x0: 0,
+      y0: 0,
+      x1: 0,
+      y1: 1,
+      colorA: tetraColor( viewport.y, viewport )[0],
+      colorB: tetraColor( viewport.y + viewport.height, viewport )[0]
+    }))
+  });
 
   // Function to place chromatic radiation fields
   // @param   set
